@@ -10,313 +10,289 @@
 </head>
 <body>
     <script>
-        // 이미지 변수 선언
-        let imgUncleIdle, imgUncleAngry, imgUncleCry, imgUncleOpen;
-        let imgMandoo, imgGolden, imgShoes;
-        let imgPlate; 
-        let imgTable;
-        let imgBoard; 
+        // 이미지 변수 선언[cite: 3]
+        let imgUncleIdle, imgUncleAngry, imgUncleCry, imgUncleOpen;[cite: 3]
+        let imgMandoo, imgGolden, imgShoes;[cite: 3]
+        let imgPlate; [cite: 3]
+        let imgTable;[cite: 3]
+        let imgBoard; [cite: 3]
         
-        // 젓가락 변수 선언
-        let imgChopstick1, imgChopstick2;
+        // 젓가락 변수 선언[cite: 3]
+        let imgChopstick1, imgChopstick2;[cite: 3]
 
-        // 전광판 관련 변수
-        let marqueeX;
-        let marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?"; 
+        // 전광판 관련 변수[cite: 3]
+        let marqueeX;[cite: 3]
+        let marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?"; [cite: 3]
 
-        // 게임 상태 관리 변수
-        let foodPos;
-        let platePos;
-        let isDragging = false;
-        let currentFood = "mandoo"; 
-        let faceStatus = "idle";    
-        let isMouthOpen = false;    
-        let isEatingActive = false; 
-        let actionTimer = 0;        
+        // 게임 상태 관리 변수[cite: 3]
+        let foodPos;[cite: 3]
+        let platePos;[cite: 3]
+        let isDragging = false;[cite: 3]
+        let currentFood = "mandoo"; [cite: 3]
+        let faceStatus = "idle";    [cite: 3]
+        let isMouthOpen = false;    [cite: 3]
+        let isEatingActive = false; [cite: 3]
+        let actionTimer = 0;        [cite: 3]
 
-        // 젓가락 제어용 상태 변수들
-        let hasFood = false;       
-        let chopstickPos;          
+        // 젓가락 제어용 상태 변수들[cite: 3]
+        let hasFood = false;       [cite: 3]
+        let chopstickPos;          [cite: 3]
 
-        function preload() {
-            imgUncleIdle = loadImage('uncle_idle.png');     
-            imgUncleAngry = loadImage('uncle_angry.png');   
-            imgUncleCry = loadImage('uncle_cry.png');       
-            imgUncleOpen = loadImage('uncle_open.png');     
+        function preload() {[cite: 3]
+            imgUncleIdle = loadImage('uncle_idle.png');     [cite: 3]
+            imgUncleAngry = loadImage('uncle_angry.png');   [cite: 3]
+            imgUncleCry = loadImage('uncle_cry.png');       [cite: 3]
+            imgUncleOpen = loadImage('uncle_open.png');     [cite: 3]
             
-            imgMandoo = loadImage('food_mandoo.png');       
-            imgGolden = loadImage('food_golden.png');       
-            imgShoes = loadImage('food_shoes.png');         
-            imgPlate = loadImage('plate.png');     
-            imgTable = loadImage('table_o.png');
+            imgMandoo = loadImage('food_mandoo.png');       [cite: 3]
+            imgGolden = loadImage('food_golden.png');       [cite: 3]
+            imgShoes = loadImage('food_shoes.png');         [cite: 3]
+            imgPlate = loadImage('plate.png');     [cite: 3]
+            imgTable = loadImage('table_o.png');[cite: 3]
             
-            imgChopstick1 = loadImage('chopstick_1.png');   
-            imgChopstick2 = loadImage('chopstick_2.png');
-            imgBoard = loadImage('board.png'); 
-        }
+            imgChopstick1 = loadImage('chopstick_1.png');   [cite: 3]
+            imgChopstick2 = loadImage('chopstick_2.png');[cite: 3]
+            
+            // 💡 혹시 모를 에러를 방지하기 위해 안전장치를 달고, 소문자 board.png로 파일명을 시도합니다.
+            imgBoard = loadImage('board.png', 
+                () => { console.log("게시판 로드 성공!"); },
+                () => { console.log("경고: board.png를 찾을 수 없습니다. 대소문자나 파일명을 확인하세요."); }
+            ); 
+        }[cite: 3]
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            marqueeX = width; 
+        function setup() {[cite: 3]
+            createCanvas(windowWidth, windowHeight);[cite: 3]
+            marqueeX = width; [cite: 3]
             
-            platePos = createVector(width - 500, height - 200);
-            foodPos = createVector(platePos.x, platePos.y - 15);
-            chopstickPos = createVector(platePos.x + 30, platePos.y - 40);
+            // 초기 위치 벡터 할당[cite: 3]
+            platePos = createVector(width - 500, height - 200);[cite: 3]
+            foodPos = createVector(platePos.x, platePos.y - 15);[cite: 3]
+            chopstickPos = createVector(platePos.x + 30, platePos.y - 40);[cite: 3]
             
-            imageMode(CENTER); 
-        }
+            imageMode(CENTER); [cite: 3]
+        }[cite: 3]
 
-        function draw() {
-            // 1. 배경색 지정
-            if (faceStatus === "angry" && isEatingActive) {
-                background(255, 100, 100); 
-            } else if (faceStatus === "cry" && isEatingActive) {
-                background(255, 235, 100); 
+        function draw() {[cite: 3]
+            // 만약 setup이 비정상적으로 스킵되었다면 실행 안 되게 방어
+            if (!chopstickPos || !platePos || !foodPos) return;
+
+            if (faceStatus === "angry" && isEatingActive) {[cite: 3]
+                background(255, 100, 100); [cite: 3]
+            } else if (faceStatus === "cry" && isEatingActive) {[cite: 3]
+                background(255, 235, 100); [cite: 3]
             } else {
-                background(154, 206, 119); 
+                background(154, 206, 119); [cite: 3]
             }
 
-            let centerX = width / 2 - 100;
-            let centerY = height / 2 - 40;
+            let centerX = width / 2 - 100;[cite: 3]
+            let centerY = height / 2 - 40;[cite: 3]
 
-            // 2초 타이머 제어
-            if (isEatingActive) {
-                if (millis() - actionTimer > 2000) {
-                    isEatingActive = false;
-                    faceStatus = "idle";
-                    resetFood(); 
+            if (isEatingActive) {[cite: 3]
+                if (millis() - actionTimer > 2000) {[cite: 3]
+                    isEatingActive = false;[cite: 3]
+                    faceStatus = "idle";[cite: 3]
+                    resetFood(); [cite: 3]
                 }
             }
 
-            // 실시간 마우스 드래그 좌표 업데이트
-            if (isDragging) {
-                chopstickPos.set(mouseX, mouseY);
+            if (isDragging) {[cite: 3]
+                chopstickPos.set(mouseX, mouseY);[cite: 3]
                 
-                if (!hasFood) {
-                    let dToFood = dist(chopstickPos.x, chopstickPos.y, foodPos.x, foodPos.y);
-                    if (dToFood < 40) {
-                        hasFood = true;
-                        // 💡 만두를 콕 집은 순간 대사 변경!
-                        marqueeText = " 오오? 오는건가?                    얼른 줘!                      이봐! 턱 빠지겠어!";
-                        marqueeX = width - 300; // 자연스럽게 흐르도록 위치 리셋
+                if (!hasFood) {[cite: 3]
+                    let dToFood = dist(chopstickPos.x, chopstickPos.y, foodPos.x, foodPos.y);[cite: 3]
+                    if (dToFood < 40) {[cite: 3]
+                        hasFood = true;[cite: 3]
+                        marqueeText = " 오오? 오는건가?                    얼른 줘!                      이봐! 턱 빠지겠어!";[cite: 3]
+                        marqueeX = width - 300; [cite: 3]
                     }
-                } else {
-                    foodPos.set(chopstickPos.x - 30, chopstickPos.y + 30);
+                } else {[cite: 3]
+                    foodPos.set(chopstickPos.x - 30, chopstickPos.y + 30);[cite: 3]
                 }
             }
 
-            // 아저씨가 입 벌릴 조건 체크
-            if (isDragging && hasFood && !isEatingActive) {
-                let dToMouth = dist(foodPos.x, foodPos.y, centerX, centerY + 80);
-                if (dToMouth < 220) {
-                    isMouthOpen = true; 
-                } else {
-                    isMouthOpen = false;
+            if (isDragging && hasFood && !isEatingActive) {[cite: 3]
+                let dToMouth = dist(foodPos.x, foodPos.y, centerX, centerY + 80);[cite: 3]
+                if (dToMouth < 220) {[cite: 3]
+                    isMouthOpen = true; [cite: 3]
+                } else {[cite: 3]
+                    isMouthOpen = false;[cite: 3]
                 }
-            } else if (!isEatingActive) {
-                isMouthOpen = false;
+            } else if (!isEatingActive) {[cite: 3]
+                isMouthOpen = false;[cite: 3]
             }
 
-            // ==================== 🎨 레이어 순서 구역 ====================
-            // 0. 전광판 UI
-             drawMarquee();
-            // 1. 테이블 배경
-            drawTable(centerX, centerY);
+            // ==================== 🎨 레이어 순서 구역 ====================[cite: 3]
+            drawMarquee();[cite: 3]
+            drawTable(centerX, centerY);[cite: 3]
+            drawPlateImage(platePos.x, platePos.y);[cite: 3]
+            drawUncleImage(centerX, centerY);[cite: 3]
+            drawBoard(width - 350, height / 2 - 100); [cite: 3]
 
-            // 2. 접시
-            drawPlateImage(platePos.x, platePos.y);
-
-            // 3. 아저씨
-            drawUncleImage(centerX, centerY);
-
-            // 4. 게시판 (💡 아저씨 앞으로 오도록 순서를 밑으로 내렸습니다!)
-            drawBoard(width - 350, height / 2 - 100); 
-
-            // 5. 음식 아이템
-            if (!isEatingActive) {
-                drawFoodImage(foodPos.x, foodPos.y, currentFood);
+            if (!isEatingActive) {[cite: 3]
+                drawFoodImage(foodPos.x, foodPos.y, currentFood);[cite: 3]
             }
 
-            // 6. 젓가락
-            if (!isEatingActive) {
-                drawChopsticks();
+            if (!isEatingActive) {[cite: 3]
+                drawChopsticks();[cite: 3]
             }
+        }[cite: 3]
 
-            // ==================================================================
-
-            
-           
-        }
-
-        // 상황별 젓가락 상태 출력 함수
-        function drawChopsticks() {
-            let targetChopstick = imgChopstick1; 
-            
-            if (isDragging && !hasFood) {
-                let dToFood = dist(chopstickPos.x, chopstickPos.y, foodPos.x, foodPos.y);
-                if (dToFood > 40 && dToFood < 150) {
-                    targetChopstick = imgChopstick2; 
+        function drawChopsticks() {[cite: 3]
+            let targetChopstick = imgChopstick1; [cite: 3]
+            if (isDragging && !hasFood) {[cite: 3]
+                let dToFood = dist(chopstickPos.x, chopstickPos.y, foodPos.x, foodPos.y);[cite: 3]
+                if (dToFood > 40 && dToFood < 150) {[cite: 3]
+                    targetChopstick = imgChopstick2; [cite: 3]
                 }
             }
-            
-            if (targetChopstick) {
-                image(targetChopstick, chopstickPos.x, chopstickPos.y, 200, 100);
+            if (targetChopstick) {[cite: 3]
+                image(targetChopstick, chopstickPos.x, chopstickPos.y, 200, 100);[cite: 3]
             }
-        }
+        }[cite: 3]
 
-        // 테이블 이미지 출력 함수
-        function drawTable(centerX, centerY) {
-            if (imgTable) {
-                push(); 
-                imageMode(CORNER); 
-                let tableX = 0;
-                let tableY = height - 540; 
-                image(imgTable, tableX, tableY, width, 540); 
-                pop(); 
+        function drawTable(centerX, centerY) {[cite: 3]
+            if (imgTable) {[cite: 3]
+                push(); [cite: 3]
+                imageMode(CORNER); [cite: 3]
+                let tableX = 0;[cite: 3]
+                let tableY = height - 540; [cite: 3]
+                image(imgTable, tableX, tableY, width, 540); [cite: 3]
+                pop(); [cite: 3]
             }
-        }
+        }[cite: 3]
 
-        // 게시판 이미지 출력 함수
-        function drawBoard(x, y) {
-            if (imgBoard) {
-                image(imgBoard, x, y, 400, 350); 
+        function drawBoard(x, y) {[cite: 3]
+            if (imgBoard) {[cite: 3]
+                image(imgBoard, x, y, 400, 350); [cite: 3]
             }
         }
         
-        // 전광판 함수
-        function drawMarquee() {
-            push();
-            fill(230); noStroke(); rect(0, 20, width, 100);
-            fill(50); textSize(50); textAlign(LEFT, CENTER);
-            text(marqueeText, marqueeX, 75);
-            if (frameCount % 8 === 0) { marqueeX -= 25; }
-            if (marqueeX < -1500) marqueeX = width;
-            pop();
-        }
+        function drawMarquee() {[cite: 3]
+            push();[cite: 3]
+            fill(230); noStroke(); rect(0, 20, width, 100);[cite: 3]
+            fill(50); textSize(50); textAlign(LEFT, CENTER);[cite: 3]
+            text(marqueeText, marqueeX, 75);[cite: 3]
+            if (frameCount % 8 === 0) { marqueeX -= 25; }[cite: 3]
+            if (marqueeX < -1500) marqueeX = width;[cite: 3]
+            pop();[cite: 3]
+        }[cite: 3]
 
-        // 접시 이미지 출력 함수
-        function drawPlateImage(x, y) {
-            if (imgPlate) {
-                image(imgPlate, x, y, 280, 200); 
+        // 접시 이미지 출력 함수[cite: 3]
+        function drawPlateImage(x, y) {[cite: 3]
+            if (imgPlate) {[cite: 3]
+                image(imgPlate, x, y, 280, 200); [cite: 3]
             }
-        }
+        }[cite: 3]
 
-        // 아저씨 이미지 출력 함수
-        function drawUncleImage(x, y) {
-            let targetImg = imgUncleIdle; 
-            if (isEatingActive) {
-                if (faceStatus === "angry") targetImg = imgUncleAngry;
-                else if (faceStatus === "cry") targetImg = imgUncleCry;
-            } else if (isMouthOpen) {
-                targetImg = imgUncleOpen; 
+        // 아저씨 이미지 출력 함수[cite: 3]
+        function drawUncleImage(x, y) {[cite: 3]
+            let targetImg = imgUncleIdle; [cite: 3]
+            if (isEatingActive) {[cite: 3]
+                if (faceStatus === "angry") targetImg = imgUncleAngry;[cite: 3]
+                else if (faceStatus === "cry") targetImg = imgUncleCry;[cite: 3]
+            } else if (isMouthOpen) {[cite: 3]
+                targetImg = imgUncleOpen; [cite: 3]
             }
-            if (targetImg) {
-                image(targetImg, x, y, 900, 550); 
+            if (targetImg) {[cite: 3]
+                image(targetImg, x, y, 900, 550); [cite: 3]
             }
-        }
+        }[cite: 3]
 
-        // 음식 이미지 출력 함수
-        function drawFoodImage(x, y, type) {
-            let foodImg = imgMandoo;  
-            let foodWidth = 110;
-            let foodHeight = 110;
+        // 음식 이미지 출력 함수[cite: 3]
+        function drawFoodImage(x, y, type) {[cite: 3]
+            let foodImg = imgMandoo;  [cite: 3]
+            let foodWidth = 110;[cite: 3]
+            let foodHeight = 110;[cite: 3]
 
-            if (type === "mandoo") {
-                foodImg = imgMandoo;
-                foodWidth = 110;   
-                foodHeight = 110;  
-            } else if (type === "golden") {
-                foodImg = imgGolden;
-                foodWidth = 140;   
-                foodHeight = 140;  
-            } else if (type === "shoes") {
-                foodImg = imgShoes;
-                foodWidth = 160;   
-                foodHeight = 100;  
+            if (type === "mandoo") {[cite: 3]
+                foodImg = imgMandoo;[cite: 3]
+                foodWidth = 110;   [cite: 3]
+                foodHeight = 110;  [cite: 3]
+            } else if (type === "golden") {[cite: 3]
+                foodImg = imgGolden;[cite: 3]
+                foodWidth = 140;   [cite: 3]
+                foodHeight = 140;  [cite: 3]
+            } else if (type === "shoes") {[cite: 3]
+                foodImg = imgShoes;[cite: 3]
+                foodWidth = 160;   [cite: 3]
+                foodHeight = 100;  [cite: 3]
             }
 
-            if (foodImg) {
-                image(foodImg, x, y, foodWidth, foodHeight); 
+            if (foodImg) {[cite: 3]
+                image(foodImg, x, y, foodWidth, foodHeight); [cite: 3]
             }
         }
         
-        // 마우스 드래그 이벤트
-        function mousePressed() {
-            if (isEatingActive) return; 
+        function mousePressed() {[cite: 3]
+            if (isEatingActive || !chopstickPos) return;  [cite: 3]
             
-            let d = dist(mouseX, mouseY, chopstickPos.x, chopstickPos.y);
-            if (d < 80) isDragging = true;
+            let d = dist(mouseX, mouseY, chopstickPos.x, chopstickPos.y);[cite: 3]
+            if (d < 80) isDragging = true;[cite: 3]
         }
 
-        function mouseDragged() {
-            // draw 루프에서 처리
+        function mouseDragged() {[cite: 3]
         }
 
-        // --- 마우스 놓았을 때 판정 ---
-        function mouseReleased() {
-            if (isDragging) {
-                isDragging = false;
+        function mouseReleased() {[cite: 3]
+            if (isDragging) {[cite: 3]
+                isDragging = false;[cite: 3]
                 
-                let centerX = width / 2 - 100; 
-                let centerY = height / 2 - 40; 
+                let centerX = width / 2 - 100; [cite: 3]
+                let centerY = height / 2 - 40; [cite: 3]
                 
-                if (hasFood) {
-                    let d = dist(foodPos.x, foodPos.y, centerX, centerY + 80);
+                if (hasFood && foodPos) { 
+                    let d = dist(foodPos.x, foodPos.y, centerX, centerY + 80);[cite: 3]
                     
-                    if (d < 160) { 
-                        isEatingActive = true;
-                        actionTimer = millis();  
+                    if (d < 160) { [cite: 3]
+                        isEatingActive = true;[cite: 3]
+                        actionTimer = millis();  [cite: 3]
                         
-                        // 💡 [핵심 수정] 입에 골인한 순간 딱 한 번 대사를 강제로 고정합니다!
-                        if (currentFood === "mandoo") {
-                            faceStatus = "idle";
-                            marqueeText = " 우물우물... 평범한 만두군.";
-                        } else if (currentFood === "shoes") {
-                            faceStatus = "angry";
-                            marqueeText = " 이게 지금 장난하자는 거야?";
-                        } else if (currentFood === "golden") {
-                            faceStatus = "cry";
-                            marqueeText = " 오오옷!! 천하일미 로구만!!";
-                        }
-                        marqueeX = width - 600; // 자연스럽게 새로 시작하도록 위치 리셋
+                        if (currentFood === "mandoo") {[cite: 3]
+                            faceStatus = "idle";[cite: 3]
+                            marqueeText = " 우물우물... 평범한 만두군.";[cite: 3]
+                        } else if (currentFood === "shoes") {[cite: 3]
+                            faceStatus = "angry";[cite: 3]
+                            marqueeText = " 이게 지금 장난하자는 거야?";[cite: 3]
+                        } else if (currentFood === "golden") {[cite: 3]
+                            faceStatus = "cry";[cite: 3]
+                            marqueeText = " 오오옷!! 천하일미 로구만!!";[cite: 3]
+                        }[cite: 3]
+                        marqueeX = width - 600; [cite: 3]
                         
-                        isMouthOpen = false;
-                    } else {
-                        backToPlate();
+                        isMouthOpen = false;[cite: 3]
+                    } else {[cite: 3]
+                        backToPlate();[cite: 3]
                     }
-                } else {
-                    backToPlate();
+                } else {[cite: 3]
+                    backToPlate();[cite: 3]
                 }
             }
         }
 
-        // 접시 위로 위치 원상복구 시키는 함수
-        function backToPlate() {
-            hasFood = false;
-            foodPos.set(platePos.x, platePos.y - 15);
-            chopstickPos.set(platePos.x + 30, platePos.y - 40);
-            
-            // 음식을 떨어뜨리거나 제자리로 돌아오면 평소 대사로 리셋
-            marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?";
+        function backToPlate() {[cite: 3]
+            if (!platePos || !foodPos || !chopstickPos) return;
+            hasFood = false;[cite: 3]
+            foodPos.set(platePos.x, platePos.y - 15);[cite: 3]
+            chopstickPos.set(platePos.x + 30, platePos.y - 40);[cite: 3]
+            marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?";[cite: 3]
         }
 
-        function resetFood() {
-            hasFood = false;
-            foodPos.set(platePos.x, platePos.y - 15);
-            chopstickPos.set(platePos.x + 30, platePos.y - 40);
-            marqueeX = width;
+        function resetFood() {[cite: 3]
+            if (!platePos || !foodPos || !chopstickPos) return;
+            hasFood = false;[cite: 3]
+            foodPos.set(platePos.x, platePos.y - 15);[cite: 3]
+            chopstickPos.set(platePos.x + 30, platePos.y - 40);[cite: 3]
+            marqueeX = width;[cite: 3]
+            marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?";[cite: 3]
             
-            // 다 먹고 다음 판 대기 상태일 때 대사 리셋
-            marqueeText = " 출출하구먼...                     꼬르륵~~                     젓가락은 뒀다가 뭐해?";
-            
-            let types = ["mandoo", "golden", "shoes"];
-            currentFood = random(types);
+            let types = ["mandoo", "golden", "shoes"];[cite: 3]
+            currentFood = random(types);[cite: 3]
         }
 
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
-            platePos.set(width - 500, height - 200);
-            backToPlate();
+        function windowResized() {[cite: 3]
+            resizeCanvas(windowWidth, windowHeight);[cite: 3]
+            if (platePos) platePos.set(width - 500, height - 200);[cite: 3]
+            backToPlate();[cite: 3]
         }
     </script>
 </body>

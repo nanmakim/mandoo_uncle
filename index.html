@@ -59,7 +59,7 @@
             createCanvas(windowWidth, windowHeight);
             marqueeX = width;
             
-            platePos = createVector(width - 500, height - 200);
+            platePos = createVector(width - 550, height - 130);
             foodPos = createVector(platePos.x, platePos.y - 15);
             chopstickPos = createVector(platePos.x + 30, platePos.y - 40);
             
@@ -157,7 +157,7 @@
 
         function drawBoard(x, y) {
             if (imgBoard) {
-                image(imgBoard, x, y, 400, 350);
+                image(imgBoard, x, y, 450, 350);
             }
         }
         
